@@ -10,7 +10,7 @@ from config import settings
 # Celery app instance
 celery_app = Celery(
     "pipeline",
-    broker="redis://localhost:6379/0",
+    broker=settings.REDIS_URL,
     backend=settings.REDIS_URL
 )
 
