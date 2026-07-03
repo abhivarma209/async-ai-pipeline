@@ -10,7 +10,7 @@ from config import settings
 # Celery app instance
 celery_app = Celery(
     "pipeline",
-    broker=settings.REDIS_URL,
+    broker="redis://localhost:6379/0",
     backend=settings.REDIS_URL
 )
 
@@ -57,10 +57,11 @@ def process_job(self, job_id: str):
 
     except Exception as e:
         # 5. handle failure
-        job.state = "failed"
-        job.error = str(e)
-        job.completed_at = datetime.utcnow()
-        db.commit()
+        if job:
+            job.state = "failed"
+            job.error = str(e)
+            job.completed_at = datetime.utcnow()
+            db.commit()
 
         # retry with exponential backoff: 1s, 2s, 4s
         raise self.retry(exc=e, countdown=2 ** self.request.retries)
