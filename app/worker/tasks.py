@@ -57,11 +57,10 @@ def process_job(self, job_id: str):
 
     except Exception as e:
         # 5. handle failure
-        if job:
-            job.state = "failed"
-            job.error = str(e)
-            job.completed_at = datetime.utcnow()
-            db.commit()
+        job.state = "failed"
+        job.error = str(e)
+        job.completed_at = datetime.utcnow()
+        db.commit()
 
         # retry with exponential backoff: 1s, 2s, 4s
         raise self.retry(exc=e, countdown=2 ** self.request.retries)
